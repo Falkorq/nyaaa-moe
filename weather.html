@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>кото-погода - nyaaa.moe</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-weather">
+
+<header class="site">
+  <div class="site-inner">
+    <a class="logo" href="/">nyaaa<span class="tld">.moe</span> <span id="logo-cat" title="мяу">(=^･ω･^=)</span></a>
+    <nav class="crumbs" aria-label="Разделы">
+      <a href="/">главная</a><span class="sep">/</span><a href="quiz.html">тесты</a><span class="sep">/</span><span class="here">кото-погода</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="kicker">кафе La Soleil / у окна</p>
+  <h1>кото-погода</h1>
+  <p class="subtitle">узнай, хочется ли сегодня гулять или лучше остаться под пледом.</p>
+
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="city" placeholder="город (например, Москва)" style="flex:1;min-width:200px" list="city-suggestions">
+      <button id="btn-go">узнать <i data-lucide="search"></i></button>
+    </div>
+    <datalist id="city-suggestions">
+      <option value="Москва"></option><option value="Санкт-Петербург"></option>
+      <option value="Минск"></option><option value="Алматы"></option>
+      <option value="Токио"></option><option value="Лондон"></option><option value="Нью-Йорк"></option>
+    </datalist>
+    <p class="mono" id="geo-hint" style="font-size:.8rem;color:var(--ink-soft);margin:10px 0 0"></p>
+  </div>
+
+  <div id="result" hidden>
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem" id="w-emoji">🐱</div>
+      <h2 style="margin:8px 0 4px" id="w-city">…</h2>
+      <p class="mono" id="w-temp" style="font-size:1.6rem;font-weight:700;color:var(--accent);margin:0 0 8px"></p>
+      <p id="w-desc" style="margin:0;font-size:1.05rem"></p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><span class="v" id="w-feels"></span><span class="k">по-кошачьи ощущается</span></div>
+      <div class="stat"><span class="v" id="w-wind"></span><span class="k">ветер в ушки</span></div>
+      <div class="stat"><span class="v" id="w-hum"></span><span class="k">влажность хвоста</span></div>
+      <div class="stat"><span class="v" id="w-sun"></span><span class="k">солнце для зарядки</span></div>
+    </div>
+    <div class="card">
+      <strong>совет кошкодевочки</strong>
+      <p id="w-advice" style="margin:8px 0 0"></p>
+    </div>
+  </div>
+
+  <p class="mono" id="err" style="color:#c0392b" hidden></p>
+
+  <p class="source-note">данные прогноза: <a href="https://open-meteo.com/">Open-Meteo</a>.</p>
+</main>
+
+<footer class="site">
+  <div class="site-inner">
+    <span>© nyaaa.moe · гладь кота чаще</span>
+    <span><a href="translator.html">ня-переводчик</a> · <a href="meta.html">ня-метаданные</a></span>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+const GEO_API = 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=ru&name=';
+const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset&timezone=auto&latitude=';
+const WMO = {
+  0:  { e: '☀️', t: 'ясно' }, 1: { e: '🌤️', t: 'почти ясно' }, 2: { e: '⛅', t: 'переменная облачность' },
+  3: { e: '☁️', t: 'пасмурно' }, 45: { e: '🌫️', t: 'туман' }, 48: { e: '🌫️', t: 'туман с осадком на усах' },
+  51: { e: '🌦️', t: 'морось' }, 53: { e: '🌦️', t: 'морось' }, 55: { e: '🌦️', t: 'сильная морось' },
+  61: { e: '🌧️', t: 'дождь' }, 63: { e: '🌧️', t: 'дождь' }, 65: { e: '🌧️', t: 'сильный дождь' },
+  71: { e: '🌨️', t: 'снег' }, 73: { e: '🌨️', t: 'снег' }, 75: { e: '❄️', t: 'сильный снег' },
+  77: { e: '🌨️', t: 'снежные зёрна' }, 80: { e: '🌦️', t: 'ливни' }, 81: { e: '🌧️', t: 'ливни' },
+  82: { e: '⛈️', t: 'сильные ливни' }, 85: { e: '🌨️', t: 'снегопад' }, 86: { e: '❄️', t: 'снегопад' },
+  95: { e: '⛈️', t: 'гроза' }, 96: { e: '⛈️', t: 'гроза с градом' }, 99: { e: '⛈️', t: 'гроза с градом' },
+};
+
+const cityInput = $('#city'), btn = $('#btn-go'), result = $('#result'), errEl = $('#err');
+
+function adviceFor(temp, code, wind, now, sunrise, sunset) {
+  const a = [];
+  if (temp >= 25) a.push('ищи плитку и растянись звездой - жара требует стратегии');
+  else if (temp >= 15) a.push('идеальная температура для прогулки на балкон с важным видом');
+  else if (temp >= 0) a.push('прохладно: сворачивайся клубком на чём-нибудь тёплом');
+  else a.push('холод: легальный повод забраться под одеяло к человеку');
+  if (code >= 61) a.push('дождь - окно для наблюдения за лужами, это кошачий телевизор');
+  if (code >= 95) a.push('гроза: спрячься под кровать, никто не видел, все поняли');
+  if (wind >= 30) a.push('ветер дует в ушки - прижми их и иди по делам');
+  if (now < sunrise || now > sunset) a.push('ночь: идеальное время для бега по коридору в 3 утра');
+  else a.push('солнечное окошко найдётся - 15 минут зарядки обязательны');
+  return a.join('. ') + '.';
+}
+
+async function load() {
+  const name = cityInput.value.trim();
+  if (!name) return;
+  errEl.hidden = true; result.hidden = true; btn.disabled = true; btn.textContent = 'нюхаем…';
+  try {
+    const geo = await (await fetch(GEO_API + encodeURIComponent(name))).json();
+    if (!geo.results || !geo.results.length) throw new Error('такого города кот не учуял');
+    const g = geo.results[0];
+    const w = await (await fetch(`${WEATHER_API}${g.latitude}&longitude=${g.longitude}`)).json();
+    const c = w.current, d = w.daily;
+    const code = c.weather_code, meta = WMO[code] || { e: '🐱', t: 'загадочно' };
+    $('#w-emoji').textContent = meta.e;
+    $('#w-city').textContent = g.name + (g.country ? ', ' + g.country : '');
+    $('#w-temp').textContent = Math.round(c.temperature_2m) + '°C · ' + meta.t;
+    $('#w-feels').textContent = Math.round(c.apparent_temperature) + '°';
+    $('#w-wind').textContent = Math.round(c.wind_speed_10m) + ' км/ч';
+    $('#w-hum').textContent = c.relative_humidity_2m + '%';
+    const sr = d.sunrise[0].split('T')[1].slice(0, 5), ss = d.sunset[0].split('T')[1].slice(0, 5);
+    $('#w-sun').textContent = sr + ' - ' + ss;
+    $('#w-advice').textContent = adviceFor(c.temperature_2m, code, c.wind_speed_10m, new Date().getHours(),
+      +d.sunrise[0].split('T')[1].slice(0, 2), +d.sunset[0].split('T')[1].slice(0, 2));
+    result.hidden = false;
+    $('#geo-hint').textContent = `координаты: ${g.latitude.toFixed(2)}, ${g.longitude.toFixed(2)}`;
+  } catch (e) {
+    errEl.textContent = e.message === 'Failed to fetch' ? 'сеть недоступна - выгляни в окно' : e.message;
+    errEl.hidden = false;
+  } finally {
+    btn.disabled = false; btn.textContent = 'узнать';
+  }
+}
+
+btn.addEventListener('click', load);
+cityInput.addEventListener('keydown', e => { if (e.key === 'Enter') load(); });
+cityInput.value = 'Москва';
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="nyaaa.moe - недополезные кошкодевичьи инструменты: гайд по становлению няшей, ня-метаданные, ня-API, кото-погода и ня-переводчик.">
+<title>nyaaa.moe - недополезно и ня</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-home">
+
+<header class="site">
+  <div class="site-inner">
+    <a class="logo" href="/">nyaaa<span class="tld">.moe</span> <span class="kaomoji" id="logo-cat">(=^･ω･^=)</span></a>
+    <nav class="crumbs" aria-label="Разделы">
+      <a href="quiz.html">тесты</a><span class="sep">/</span><a href="guide.html">гайд</a><span class="sep">/</span>
+      <a href="meta.html">мета</a><span class="sep">/</span>
+      <a href="weather.html">погода</a><span class="sep">/</span>
+      <a href="translator.html">переводчик</a><span class="sep">/</span>
+      <a href="nyashki.html">няшки</a><span class="sep">/</span>
+      <a href="api.html">api</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="home-hero">
+    <div>
+      <p class="kicker">кафе La Soleil / открыто всегда</p>
+      <h1>место для<br><em>кошачьих дел.</em></h1>
+      <p class="subtitle">тесты, маленькие инструменты и десять шагов до сертификата няши. выбирай, с чего начать.</p>
+    </div>
+    <button class="hero-seal" id="hero-cat" type="button" title="погладь кота" aria-label="погладить кота">(=^･ω･^=)</button>
+  </section>
+  <div class="menu-heading"><h2>сегодня в меню</h2><span>01 / 07</span></div>
+
+  <div class="index-list">
+    <a class="index-card" href="quiz.html">
+      <span class="index-num">01</span>
+      <span><span class="name">кошачьи тесты</span>
+      <span class="desc">характер, архетипы, головоломка и короткие тесты</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="guide.html">
+      <span class="index-num">02</span>
+      <span><span class="name">как стать няшей</span>
+      <span class="desc">десять шагов и сертификат от La Soleil</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="nyashki.html">
+      <span class="index-num">03</span>
+      <span><span class="name">няшки сайта</span>
+      <span class="desc">книга тех, кто уже получил сертификат</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="meta.html">
+      <span class="index-num">04</span>
+      <span><span class="name">ня-метаданные</span>
+      <span class="desc">что браузер рассказывает о тебе</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="weather.html">
+      <span class="index-num">05</span>
+      <span><span class="name">кото-погода</span>
+      <span class="desc">прогноз на кошачьем языке</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="translator.html">
+      <span class="index-num">06</span>
+      <span><span class="name">ня-переводчик</span>
+      <span class="desc">одна фраза, шесть кошачьих голосов</span></span>
+      <span class="arrow">↗</span>
+    </a>
+    <a class="index-card" href="api.html">
+      <span class="index-num">07</span>
+      <span><span class="name">ня-API</span>
+      <span class="desc">мяу-числа и цитаты в JSON</span></span>
+      <span class="arrow">↗</span>
+    </a>
+  </div>
+
+  <div class="home-afterword"><span>(=^･ω･^=)</span><p>Чокола уже разливает кофе. располагайся.</p></div>
+  <p class="home-fineprint">без cookie и аналитики. отметки шагов хранятся в браузере; выданный сертификат виден всем.</p>
+</main>
+
+<footer class="site">
+  <div class="site-inner">
+    <span>© nyaaa.moe · кафе La Soleil открыто круглосуточно</span>
+    <span><a href="api.html">api</a> · <a href="guide.html">стать няшей</a></span>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+// гладишь кота - он меняется и мяукает
+const hero = document.getElementById('hero-cat');
+hero.addEventListener('click', () => {
+  hero.textContent = randomKaomoji();
+  nyaa();
+});
+function nyaa() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    // Один контекст на страницу: раньше создавался новый на каждый клик и не закрывался.
+    if (!window.__nyaaCtx) window.__nyaaCtx = new AC();
+    const ctx = window.__nyaaCtx;
+    if (ctx.state === 'suspended') void ctx.resume();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(700, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.06);
+    o.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.18);
+    g.gain.setValueAtTime(0.08, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    o.connect(g).connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.22);
+  } catch (e) { /* без звука тоже нормально */ }
+}
+</script>
+</body>
+</html>
+

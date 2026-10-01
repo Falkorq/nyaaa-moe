@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ня-API - nyaaa.moe</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-api">
+
+<header class="site">
+  <div class="site-inner">
+    <a class="logo" href="/">nyaaa<span class="tld">.moe</span> <span id="logo-cat" title="мяу">(=^･ω･^=)</span></a>
+    <nav class="crumbs" aria-label="Разделы">
+      <a href="/">главная</a><span class="sep">/</span><a href="quiz.html">тесты</a><span class="sep">/</span><span class="here">ня-API</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="kicker">кафе La Soleil / для разработчиков</p>
+  <h1>ня-API</h1>
+  <p class="subtitle">два открытых JSON-эндпоинта: случайное мяу-число и кошачья цитата.</p>
+
+  <h2>эндпоинты</h2>
+
+  <div class="card">
+    <p class="mono" style="margin:0 0 6px"><strong>GET /api/nya</strong></p>
+    <p style="margin:0 0 10px;font-size:.95rem">случайное мяу-число и кошкодевочка. опционально <code>?min=1&amp;max=100</code> (границы ±1000000, размах не больше 1000000).</p>
+    <pre><code>curl nyaaa.moe/api/nya
+
+{
+  "nya": 7,
+  "catgirl": "Чокола",
+  "kaomoji": "(=^･ω･^=)",
+  "emoji": "🍫",
+  "mood": "мурчащая"
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <p class="mono" style="margin:0 0 6px"><strong>GET /api/quote</strong></p>
+    <p style="margin:0 0 10px;font-size:.95rem">мудрость случайной кошкодевочки из Nekopara. 18 цитат, все в характере.</p>
+    <pre><code>curl nyaaa.moe/api/quote
+
+{
+  "quote": "жизнь без сладкого - это просто длинный сон наяву, ня!",
+  "author": "Чокола",
+  "from": "Nekopara"
+}</code></pre>
+  </div>
+
+  <h2>попробовать</h2>
+  <div class="card">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <select id="endpoint" style="width:auto;flex:1;min-width:180px">
+        <option value="nya">/api/nya</option>
+        <option value="quote">/api/quote</option>
+      </select>
+      <button id="btn-try">запросить <i data-lucide="send"></i></button>
+    </div>
+    <pre id="response" style="margin-top:14px"><code>// нажми кнопку - ответ появится здесь</code></pre>
+  </div>
+
+  <p class="source-note">200 - всё ня · 418 - ты чайник · 500 - кот ушёл, зайди позже.</p>
+</main>
+
+<footer class="site">
+  <div class="site-inner">
+    <span>© nyaaa.moe · кафе La Soleil открыто круглосуточно</span>
+    <span><a href="meta.html">ня-метаданные</a> · <a href="weather.html">кото-погода</a></span>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+// та же шестёрка, что в api.js
+const CATGIRLS = [
+  { name: 'Чокола',   kaomoji: '(=^･ω･^=)', emoji: '🍫' },
+  { name: 'Ванилла',  kaomoji: '(=ＴωＴ=)',  emoji: '❄️' },
+  { name: 'Адзуки',   kaomoji: '(=☄ｪ☄=)',   emoji: '🌶️' },
+  { name: 'Мэйпл',    kaomoji: '(=✧ω✧=)',   emoji: '🍁' },
+  { name: 'Синамон', kaomoji: '(=①ω①=)',   emoji: '🥐' },
+  { name: 'Коконат',    kaomoji: '(=✪ω✪=)',   emoji: '🥥' },
+];
+const MOODS = ['сонная', 'игривая', 'голодная', 'величественная', 'мурчащая', 'загадочная', 'шалящая', 'философская'];
+const QUOTES = [
+  ['жизнь без сладкого - это просто длинный сон наяву, ня!', 'Чокола'],
+  ['Чокола старалась весь день! можно поглаживания, господин? ня~!', 'Чокола'],
+  ['работа сделана на 120%! а остаток сил Чокола оставила для поощрения, ня~!', 'Чокола'],
+  ['я не молчу. я экономлю мяу', 'Ванилла'],
+  ['меня разбудили. это уже событие, достойное праздника', 'Ванилла'],
+  ['...хорошо. но только потому, что ты попросил', 'Ванилла'],
+  ['я не маленькая! просто компактная, поня?!', 'Адзуки'],
+  ['н-не то чтобы я старалась ради тебя! просто так вышло, поня!', 'Адзуки'],
+  ['признай, что я милая, и я, может быть, помогу', 'Адзуки'],
+  ['талант без практики - как кофе без кофеина. приятно, но бессмысленно', 'Мэйпл'],
+  ['сцена ждёт. вопрос лишь - готов ли зал', 'Мэйпл'],
+  ['элегантность - это когда даже лень выглядит изящно', 'Мэйпл'],
+  ['я ничего такого не подумала! ...ну ладно, немного подумала, фуээ', 'Синамон'],
+  ['воображение - лучший десерт после обеда', 'Синамон'],
+  ['сегодня тоже прекрасный день для мечтаний о... ничем таком!', 'Синамон'],
+  ['я старшая, и я всё контролирую! ...почему я снова застряла в коробке, ня...', 'Коконат'],
+  ['положись на меня! ...только не смотри в этот момент, ладно?', 'Коконат'],
+  ['большие ушки - большие проблемы. но я справлюсь', 'Коконат'],
+];
+
+function nyaData(params) {
+  const clamp = (v, def) => Number.isInteger(v) ? Math.min(1000000, Math.max(-1000000, v)) : def;
+  let min = clamp(params.has('min') ? parseInt(params.get('min'), 10) : NaN, 1);
+  let max = clamp(params.has('max') ? parseInt(params.get('max'), 10) : NaN, 10);
+  if (min > max) [min, max] = [max, min];
+  if (max - min > 1000000) max = min + 1000000;
+  const g = CATGIRLS[Math.floor(Math.random() * CATGIRLS.length)];
+  return {
+    nya: min + Math.floor(Math.random() * (max - min + 1)),
+    catgirl: g.name, kaomoji: g.kaomoji, emoji: g.emoji,
+    mood: MOODS[Math.floor(Math.random() * MOODS.length)],
+  };
+}
+function quoteData() {
+  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  return { quote: q[0], author: q[1], from: 'Nekopara' };
+}
+
+function handleApi(path, search) {
+  const params = new URLSearchParams(search);
+  if (path === '/api/nya') return { status: 200, body: nyaData(params) };
+  if (path === '/api/quote') return { status: 200, body: quoteData() };
+  return { status: 404, body: { error: 'мяу? такого эндпоинта нет', hint: 'попробуй /api/nya или /api/quote' } };
+}
+
+$('#btn-try').addEventListener('click', async () => {
+  const ep = $('#endpoint').value;
+  const out = $('#response');
+  const r = handleApi('/api' + (ep === 'nya' ? '/nya' : '/quote'), '');
+  out.innerHTML = '';
+  const code = document.createElement('code');
+  code.textContent = JSON.stringify(r.body, null, 2);
+  out.appendChild(code);
+});
+
+// если открыли как /api/... напрямую - чистый JSON
+if (location.pathname.endsWith('/api/nya') || location.pathname.endsWith('/api/quote')) {
+  const r = handleApi(location.pathname, location.search);
+  document.open();
+  document.write('<pre>' + JSON.stringify(r.body, null, 2) + '</pre>');
+  document.close();
+}
+</script>
+</body>
+</html>

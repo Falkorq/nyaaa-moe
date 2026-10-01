@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Няшки сайта nyaaa.moe: ники и сертификаты гостей кафе La Soleil.">
+<title>няшки сайта - nyaaa.moe</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-nyashki">
+<header class="site"><div class="site-inner">
+  <a class="logo" href="/">nyaaa<span class="tld">.moe</span> <span>(=^･ω･^=)</span></a>
+  <nav class="crumbs" aria-label="Разделы"><a href="/">главная</a><span class="sep">/</span><a href="quiz.html">тесты</a><span class="sep">/</span><span class="here">няшки сайта</span></nav>
+</div></header>
+<main>
+  <p class="kicker">кафе La Soleil / книга гостей</p>
+  <h1>няшки сайта</h1>
+  <p class="subtitle">здесь остаются имена тех, кто прошёл все десять шагов.</p>
+  <a class="btn" href="guide.html">стать няшей сайта</a>
+  <p class="muted-small" id="total-label">загружаем книгу…</p>
+  <div class="nya-grid" id="nya-grid" aria-live="polite"></div>
+  <p class="form-status" id="page-status" role="status"></p>
+  <div class="certificate-actions" id="pager" hidden>
+    <button class="ghost" id="previous" type="button">← назад</button>
+    <span class="mono" id="page-label"></span>
+    <button class="ghost" id="next" type="button">дальше →</button>
+  </div>
+</main>
+<footer class="site"><div class="site-inner"><span>© nyaaa.moe · гладь кота чаще</span><span><a href="guide.html">пройти 10 шагов</a></span></div></footer>
+<script src="shared.js"></script>
+<script>
+'use strict';
+let page = 1;
+const grid = $('#nya-grid');
+const status = $('#page-status');
+async function loadPage() {
+  status.textContent = '';
+  grid.replaceChildren();
+  try {
+    const response = await fetch(`/api/certificates?page=${page}`);
+    if (!response.ok) throw new Error('книга няшек сейчас недоступна');
+    const data = await response.json();
+    $('#total-label').textContent = `в книге ${data.total} ${data.total === 1 ? 'няшка' : 'няшек'} · новые сверху`;
+    if (data.items.length === 0) status.textContent = page === 1 ? 'пока тут тихо. стань первой няшкой сайта!' : 'на этой странице никого нет.';
+    for (const cert of data.items) {
+      const card = document.createElement('a');
+      card.className = 'nya-entry';
+      card.href = `certificate.html?id=${encodeURIComponent(cert.id)}`;
+      const cat = document.createElement('span');
+      cat.className = 'nya-entry-cat';
+      cat.textContent = '(=^･ω･^=)';
+      const name = document.createElement('strong');
+      name.textContent = cert.nickname;
+      const date = document.createElement('small');
+      date.textContent = `сертификат от ${new Date(cert.issuedAt).toLocaleDateString('ru-RU')}`;
+      card.append(cat, name, date);
+      grid.appendChild(card);
+    }
+    const maxPage = Math.max(1, Math.ceil(data.total / data.pageSize));
+    $('#pager').hidden = maxPage === 1;
+    $('#page-label').textContent = `${page} / ${maxPage}`;
+    $('#previous').disabled = page <= 1;
+    $('#next').disabled = page >= maxPage;
+  } catch (error) {
+    status.textContent = error.message || 'сервер пока спит. загляни позже.';
+    $('#total-label').textContent = '';
+    $('#pager').hidden = true;
+  }
+}
+$('#previous').addEventListener('click', () => { if (page > 1) { page--; loadPage(); } });
+$('#next').addEventListener('click', () => { page++; loadPage(); });
+loadPage();
+</script>
+</body>
+</html>

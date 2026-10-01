@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ня-метаданные - nyaaa.moe</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-meta">
+
+<header class="site">
+  <div class="site-inner">
+    <a class="logo" href="/">nyaaa<span class="tld">.moe</span> <span id="logo-cat" title="мяу">(=^･ω･^=)</span></a>
+    <nav class="crumbs" aria-label="Разделы">
+      <a href="/">главная</a><span class="sep">/</span><a href="quiz.html">тесты</a><span class="sep">/</span><span class="here">ня-метаданные</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <p class="kicker">кафе La Soleil / взгляд браузера</p>
+  <h1>ня-метаданные</h1>
+  <p class="subtitle">небольшой портрет из данных, которые видит любая открытая страница.</p>
+
+  <span class="cat" id="meta-cat" title="мяу">(=◉ᆽ◉=)</span>
+
+  <div class="stat-grid" id="stats"></div>
+
+  <div class="card">
+    <strong>вердикт о тебе</strong>
+    <p id="verdict" style="margin:8px 0 0">…</p>
+  </div>
+
+  <div class="card">
+    <strong>твой технический портрет</strong>
+    <div id="tech" class="mono" style="font-size:.82rem;color:var(--ink-soft);margin-top:10px;line-height:1.8"></div>
+  </div>
+
+  <p class="source-note">эти данные остаются в твоём браузере. сайт не использует аналитику.</p>
+</main>
+
+<footer class="site">
+  <div class="site-inner">
+    <span>© nyaaa.moe · гладь кота чаще</span>
+    <span><a href="api.html">ня-API</a> · <a href="weather.html">кото-погода</a></span>
+  </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+'use strict';
+// посещения и время на сайте - в localStorage
+const firstVisit = store.get('firstVisit');
+if (!firstVisit) store.set('firstVisit', new Date().toISOString());
+const visits = (store.get('visits') || 0) + 1;
+store.set('visits', visits);
+let seconds = store.get('seconds') || 0;
+setInterval(() => { seconds++; store.set('seconds', seconds); if (seconds % 5 === 0) render(); }, 1000);
+
+const statsEl = $('#stats');
+const cat = $('#meta-cat');
+cat.addEventListener('click', () => cat.textContent = randomCatgirl());
+
+function fmtDur(s) {
+  if (s < 60) return s + ' сек';
+  if (s < 3600) return Math.floor(s / 60) + ' мин';
+  if (s < 86400) return (s / 3600).toFixed(1) + ' ч';
+  return (s / 86400).toFixed(1) + ' дн';
+}
+
+function catStat(key, val) {
+  const d = document.createElement('div');
+  d.className = 'stat';
+  const v = document.createElement('span'); v.className = 'v'; v.textContent = val;
+  const k = document.createElement('span'); k.className = 'k'; k.textContent = key;
+  d.appendChild(v); d.appendChild(k);
+  statsEl.appendChild(d);
+}
+
+function verdictFor(v, sec, hr) {
+  const hour = new Date().getHours();
+  const timeNote = hour < 6 ? 'ты здесь среди ночи. коты одобряют, врачи - нет.'
+    : hour < 12 ? 'утренняя няшность - самая честная.'
+    : hour < 18 ? 'дневной ня-сеанс зафиксирован.'
+    : 'вечер с кошкодевочками - классика жанра.';
+  if (v >= 10 && sec > 600) return `ты заходил(а) уже ${v} раз(а) и провёл(а) здесь ${fmtDur(sec)}. это уже не любопытство - это отношения. ${timeNote}`;
+  if (v >= 3) return `${v} визита(ов), ${fmtDur(sec)} суммарно. сайт начинает тебя узнавать. ${timeNote}`;
+  if (sec > 120) return `первый визит, но ты уже ${fmtDur(sec)} здесь. основательно. ${timeNote}`;
+  return `новичок detected. погладь кота сверху и стань своим. ${timeNote}`;
+}
+
+function render() {
+  statsEl.innerHTML = '';
+  const now = new Date();
+  const days = Math.max(0, Math.floor((now - new Date(store.get('firstVisit'))) / 86400000));
+  catStat('визиты', visits);
+  catStat('проведено времени', fmtDur(seconds));
+  catStat('знакомы дней', days);
+  catStat('котов поглажено', (store.get('pets') || 0) + ' раз');
+  catStat('размер окна', window.innerWidth + '×' + window.innerHeight);
+  catStat('язык', navigator.language || 'не сказал(а)');
+  $('#verdict').textContent = verdictFor(visits, seconds);
+}
+
+// техпортрет
+const tech = $('#tech');
+function line(k, v) { const d = document.createElement('div'); d.textContent = k + ': ' + v; tech.appendChild(d); }
+line('user agent', navigator.userAgent);
+line('платформа', navigator.platform || 'секретно');
+line('ядер процессора', navigator.hardwareConcurrency || 'скрывает');
+line('пиксельная глубина', screen.colorDepth + ' бит');
+line('тёмная тема', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'да 🌙' : 'нет ☀️');
+if (navigator.getBattery) navigator.getBattery().then(b => line('батарея', Math.round(b.level * 100) + '% ' + (b.charging ? '(заряжается)' : '(на своих)'))).catch(() => {});
+if (navigator.connection) line('соединение', navigator.connection.effectiveType || 'неизвестно');
+
+render();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>
