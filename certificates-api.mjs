@@ -1,5 +1,3 @@
-import { randomUUID, timingSafeEqual } from 'node:crypto';
-
 const PAGE_SIZE = 24;
 const MAX_BODY_BYTES = 1024;
 const ID_PATTERN = /^\d{13}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
@@ -43,13 +41,13 @@ async function listCertificateKeys(store) {
   return keys;
 }
 
-function adminAuthorized(request) {
-  const token = process.env.CERT_ADMIN_TOKEN;
+function adminAuthorized(request, token) {
   if (!token) return false;
-  const a = Buffer.from(request.headers.get('authorization') ?? '', 'utf8');
-  const b = Buffer.from(`Bearer ${token}`, 'utf8');
-  if (a.length !== b.length) return false;
-  try { return timingSafeEqual(a, b); } catch { return false; }
+  const a = new TextEncoder().encode(request.headers.get('authorization') ?? '');
+  const b = new TextEncoder().encode(`Bearer ${token}`);
+  let difference = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) difference |= (a[i] ?? 0) ^ (b[i] ?? 0);
+  return difference === 0;
 }
 
 const reply = (status, body) => new Response(JSON.stringify(body), {
@@ -63,12 +61,12 @@ export function validateNickname(value) {
   return NAME_PATTERN.test(nickname) && /[\p{L}\p{N}]/u.test(nickname) ? nickname : null;
 }
 
-export async function handleCertificates(request, store, now = () => new Date()) {
+export async function handleCertificates(request, store, now = () => new Date(), adminToken = globalThis.process?.env?.CERT_ADMIN_TOKEN) {
   const url = new URL(request.url);
   const suffix = url.pathname.replace(/^\/api\/certificates\/?/, '');
 
   if (request.method === 'POST' && suffix === 'progress') {
-    const session = { id: randomUUID(), createdAt: now().toISOString(), steps: [] };
+    const session = { id: crypto.randomUUID(), createdAt: now().toISOString(), steps: [] };
     await store.setJSON(`progress/${session.id}`, session, { onlyIfNew: true });
     return reply(201, session);
   }
@@ -128,7 +126,7 @@ export async function handleCertificates(request, store, now = () => new Date())
     }
     const times = steps.map(item => Date.parse(item.t)).sort((a, b) => a - b);
     const progress = { startedAt: new Date(times[0]).toISOString(), finishedAt: new Date(times.at(-1)).toISOString(), spanMs: times.at(-1) - times[0] };
-    const id = `${Date.parse(issuedAt)}-${randomUUID()}`;
+    const id = `${Date.parse(issuedAt)}-${crypto.randomUUID()}`;
     const certificate = { id, nickname, issuedAt, guide: progress };
     await store.setJSON(`cert/${id}`, certificate, { onlyIfNew: true });
     await store.delete(`progress/${session.id}`);
@@ -151,7 +149,7 @@ export async function handleCertificates(request, store, now = () => new Date())
   }
 
   if (request.method === 'DELETE' && ID_PATTERN.test(suffix)) {
-    if (!adminAuthorized(request)) {
+    if (!adminAuthorized(request, adminToken)) {
       return reply(403, { error: 'доступ запрещён' });
     }
     await store.delete(`cert/${suffix}`);

@@ -19,8 +19,8 @@
   <div class="card certificate-card" id="certificate-card">
     <div class="certificate-cat" aria-hidden="true">(=✧ᆽ✧=)</div>
     <p class="kicker">настоящим удостоверяется</p>
-    <h2 id="nickname">загружаем мяу…</h2>
-    <p id="certificate-copy">сертификат просыпается.</p>
+    <h2 id="nickname">загружаем…</h2>
+    <p id="certificate-copy">проверяем ссылку.</p>
     <p class="mono muted-small" id="certificate-meta"></p>
   </div>
   <div class="certificate-actions" id="certificate-actions" hidden>
@@ -46,7 +46,7 @@ async function loadCertificate() {
     if (!response.ok) throw new Error('сертификат не найден');
     const cert = await response.json();
     $('#nickname').textContent = cert.nickname;
-    $('#certificate-copy').textContent = 'прошёл(ла) все 10 шагов и официально является няшей уровня кафе La Soleil.';
+    $('#certificate-copy').textContent = 'кафе La Soleil выдало этот сертификат за десять пройденных шагов.';
     $('#certificate-meta').textContent = `№ NYA-${cert.id.split('-').at(-1).slice(0, 8).toUpperCase()} · выдан ${new Date(cert.issuedAt).toLocaleDateString('ru-RU')}`;
     $('#certificate-actions').hidden = false;
     document.title = `${cert.nickname} - сертификат няшности · nyaaa.moe`;

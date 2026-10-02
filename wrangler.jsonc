@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "nyaaa-moe",
+  "main": "./worker/index.mjs",
+  "compatibility_date": "2026-10-02",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "nyaaa-moe",
+      "database_id": "849a04e9-3b7b-4e45-841b-7944af778b5a"
+    }
+  ],
+  "ratelimits": [
+    { "name": "API_LIMIT", "namespace_id": "781001", "simple": { "limit": 60, "period": 60 } },
+    { "name": "TRANSLATE_LIMIT", "namespace_id": "781002", "simple": { "limit": 6, "period": 60 } },
+    { "name": "CERTIFICATE_LIMIT", "namespace_id": "781003", "simple": { "limit": 20, "period": 60 } }
+  ],
+  "observability": { "enabled": true, "traces": { "enabled": true } }
+}

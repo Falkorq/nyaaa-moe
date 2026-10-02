@@ -242,8 +242,8 @@ function renderIntro() {
   const isCompat = key === COMPAT_KEY;
   const isPuzzle = key === PUZZLE_KEY;
   const disclaimer = isPuzzle
-    ? 'игровой квиз без нормирования: числовой IQ не показываем и не считаем.'
-    : 'это развлекательный тест, а не психологическая диагностика.';
+    ? 'задания игровые. мы не считаем IQ.'
+    : 'тест игровой. по результату нельзя судить о личности.';
   app().innerHTML = `
     <a href="#" id="back-hub" class="back-link">← ко всем тестам</a>
     <p class="kicker">${esc(info ? info.label : 'мини-тест')}</p>
@@ -542,7 +542,7 @@ function renderResults() {
     html = `
       <p class="kicker">твой кошачий тип</p>
       <div class="result-big">${esc(r.typeName)}</div>
-      <p style="color:var(--ink-soft)">уверенность показывает перевес ответов внутри каждой оси - не «научность» типа.</p>
+      <p style="color:var(--ink-soft)">процент показывает, как часто ты выбирал одну сторону оси.</p>
       <div class="card">${r.axes.map(a => barRow(a.ax + ' → ' + a.letter + (a.tie ? ' (пограничный)' : ''), a.conf)).join('')}</div>`;
   } else if (key === PUZZLE_KEY) {
     const r = computePuzzle();
@@ -551,7 +551,7 @@ function renderResults() {
     html = `
       <p class="kicker">результат</p>
       <div class="result-big">${esc(r.tier.title)}</div>
-      <p style="color:var(--ink-soft)">набрано ${r.pct}% весов заданий. это игровой тир, а не IQ.</p>
+      <p style="color:var(--ink-soft)">результат: ${r.pct}% от максимального веса заданий. IQ мы не считаем.</p>
       <div class="card">${r.cats.map(c => barRow(c.name, c.pct)).join('')}</div>`;
   } else if (key === COMPAT_KEY) {
     const r = computeCompat();
@@ -560,7 +560,7 @@ function renderResults() {
     html = `
       <p class="kicker">результат пары</p>
       <div class="result-big">${r.matchPct}%</div>
-      <p style="color:var(--ink-soft)">совпадений в ответах. это игровой показатель сходства, не оценка отношений.</p>
+      <p style="color:var(--ink-soft)">вы одинаково ответили на ${r.matchPct}% вопросов.</p>
       <div class="card"><strong>ведущие темы пары</strong>
         <p style="margin:8px 0 0">${r.themes.map(esc).join(' · ')}</p>
       </div>`;
@@ -587,7 +587,7 @@ function renderResults() {
       <button id="btn-again">ещё раз</button>
       <button class="ghost" id="btn-translate">перевести у кошкодевочек <i data-lucide="sparkles"></i></button>
     </div>
-    <p class="quiz-disclaimer">развлекательный тест: результат - игровой образ, а не диагностика личности.</p>
+    <p class="quiz-disclaimer">результат описывает игровой образ.</p>
   `;
   $('#back-hub').addEventListener('click', e => { e.preventDefault(); goHub(); });
   $('#btn-again').addEventListener('click', again);

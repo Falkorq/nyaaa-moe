@@ -21,7 +21,7 @@ const PERSONA_PROMPTS = {
 };
 const INTENSITY = { 1: 'няшности чуть-чуть, почти обычная речь', 2: 'средняя няшность', 3: 'максимальная няшность, «ня» через слово' };
 
-export default async (req) => {
+export default async (req, env = globalThis.process?.env) => {
   if (req.method !== 'POST') {
     return json(405, { error: 'нужен POST' });
   }
@@ -32,7 +32,7 @@ export default async (req) => {
   if (origin && origin !== new URL(req.url).origin) {
     return json(403, { error: 'запрос с другого сайта запрещён' });
   }
-  const key = process.env.GROQ_API_KEY;
+  const key = env?.GROQ_API_KEY;
   if (!key) {
     return json(503, { error: 'кошкодевочки сейчас вне смены: на сервере не задан GROQ_API_KEY' });
   }

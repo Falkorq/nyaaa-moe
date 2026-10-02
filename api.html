@@ -28,7 +28,7 @@
   <div class="card">
     <p class="mono" style="margin:0 0 6px"><strong>GET /api/nya</strong></p>
     <p style="margin:0 0 10px;font-size:.95rem">случайное мяу-число и кошкодевочка. опционально <code>?min=1&amp;max=100</code> (границы ±1000000, размах не больше 1000000).</p>
-    <pre><code>curl nyaaa.moe/api/nya
+    <pre><code>curl https://nyaaa.moe/api/nya
 
 {
   "nya": 7,
@@ -41,8 +41,8 @@
 
   <div class="card">
     <p class="mono" style="margin:0 0 6px"><strong>GET /api/quote</strong></p>
-    <p style="margin:0 0 10px;font-size:.95rem">мудрость случайной кошкодевочки из Nekopara. 18 цитат, все в характере.</p>
-    <pre><code>curl nyaaa.moe/api/quote
+    <p style="margin:0 0 10px;font-size:.95rem">случайная фраза одной из шести кошкодевочек.</p>
+    <pre><code>curl https://nyaaa.moe/api/quote
 
 {
   "quote": "жизнь без сладкого - это просто длинный сон наяву, ня!",
@@ -63,7 +63,7 @@
     <pre id="response" style="margin-top:14px"><code>// нажми кнопку - ответ появится здесь</code></pre>
   </div>
 
-  <p class="source-note">200 - всё ня · 418 - ты чайник · 500 - кот ушёл, зайди позже.</p>
+  <p class="source-note">200 - ответ · 404 - неизвестный адрес · 429 - слишком много запросов.</p>
 </main>
 
 <footer class="site">
