@@ -3,6 +3,10 @@
   "name": "nyaaa-moe",
   "main": "./worker/index.mjs",
   "compatibility_date": "2026-10-02",
+  "routes": [
+    { "pattern": "nyaaa.moe/*", "zone_name": "nyaaa.moe" },
+    { "pattern": "www.nyaaa.moe/*", "zone_name": "nyaaa.moe" }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

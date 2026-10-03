@@ -4,6 +4,8 @@ Static pages and a Cloudflare Worker for the nya API, Groq translator, guide pro
 
 Production deploys from the `main` branch of `Falkorq/nyaaa-moe` through Cloudflare Workers Builds. Build command: `npm run build`. Deploy command: `npx wrangler deploy`.
 
+The Worker handles `nyaaa.moe/*` and `www.nyaaa.moe/*`. Their DNS records are proxied through Cloudflare and use the originless placeholder `192.0.2.0`. Before migration both records pointed to Netlify at `75.2.60.5` with DNS-only mode.
+
 ## Local development
 
 Run `npm ci`, `npx wrangler d1 migrations apply nyaaa-moe --local`, then `npm run dev:cloudflare`. Local D1 data stays in the ignored `.wrangler/` directory. Run `npm test` for the existing API and browser tests.
