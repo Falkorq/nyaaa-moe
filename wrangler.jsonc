@@ -3,6 +3,8 @@
   "name": "nyaaa-moe",
   "main": "./worker/index.mjs",
   "compatibility_date": "2026-10-02",
+  "keep_vars": true,
+  "secrets": { "required": ["GROQ_API_KEY"] },
   "routes": [
     { "pattern": "nyaaa.moe/*", "zone_name": "nyaaa.moe" },
     { "pattern": "www.nyaaa.moe/*", "zone_name": "nyaaa.moe" }
