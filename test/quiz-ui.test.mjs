@@ -38,7 +38,7 @@ test('quiz page opens: hub renders after scripts load', async () => {
   await script('shared.js');
   await script('quiz.js');
   fireReady();
-  // если esc() не определён или данные не подгрузились — останется экран загрузки
+  // если esc() не определён или данные не подгрузились - останется экран загрузки
   const hubTitle = [...window.document.querySelectorAll('h1')].map(h => h.textContent).join();
   assert.match(hubTitle, /кошачьи тесты/);
   assert.ok(window.document.querySelector('.quiz-featured'), 'нет карточек главных тестов');
@@ -61,11 +61,11 @@ test('memory puzzles: stimulus shows once, then the answer options appear', asyn
   doc.querySelector('#btn-start').click();
 
   // прокликиваем все вопросы. на заданиях памяти сначала стимул с таймером,
-  // затем варианты. если цикл воспроизвёлся — стимул появится повторно и тест свалится.
+  // затем варианты. если цикл воспроизвёлся - стимул появится повторно и тест свалится.
   for (let guard = 0; guard < 80; guard++) {
     if (doc.querySelector('.stimulus-card')) {
       await new Promise(resolve => setTimeout(resolve, 5300)); // ждём таймер стимула (5с)
-      if (doc.querySelector('.stimulus-card')) assert.fail('стимул показывается повторно — цикл на месте');
+      if (doc.querySelector('.stimulus-card')) assert.fail('стимул показывается повторно - цикл на месте');
       continue;
     }
     const opts = [...doc.querySelectorAll('.qopt')];

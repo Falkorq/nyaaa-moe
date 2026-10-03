@@ -32,7 +32,7 @@ export default async (req, env = globalThis.process?.env) => {
   if (origin && origin !== new URL(req.url).origin) {
     return json(403, { error: 'запрос с другого сайта запрещён' });
   }
-  const key = env?.GROQ_API_KEY;
+  const key = env?.GROQ_API_KEY ?? globalThis.process?.env?.GROQ_API_KEY;
   if (!key) {
     return json(503, { error: 'кошкодевочки сейчас вне смены: на сервере не задан GROQ_API_KEY' });
   }
