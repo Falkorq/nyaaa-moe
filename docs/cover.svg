@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-labelledby="title desc">
+  <title id="title">nyaaa.moe — место для кошачьих дел</title>
+  <desc id="desc">Обложка ночного кафе La Soleil: розовое название, кошачья мордочка и меню на тёмном фоне.</desc>
+  <rect width="1280" height="480" fill="#101014"/>
+  <rect x="26" y="26" width="1228" height="428" rx="18" fill="none" stroke="#39343c" stroke-width="2"/>
+  <text x="76" y="92" fill="#efd0aa" font-family="Georgia,serif" font-style="italic" font-size="25">кафе La Soleil</text>
+  <text x="68" y="229" fill="#f58aaa" font-family="Georgia,serif" font-weight="700" font-size="108" letter-spacing="-5">nyaaa.moe</text>
+  <text x="76" y="292" fill="#f5eee8" font-family="Arial,sans-serif" font-size="34">место для кошачьих дел</text>
+  <text x="78" y="397" fill="#b4a9a8" font-family="Arial,sans-serif" font-size="23">тесты · погода · переводчик · сертификаты</text>
+  <g transform="translate(1010 214)" stroke="#efd0aa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M-96-28L-102-108L-42-64Q0-83 42-64L102-108L96-28Q128 90 0 96Q-128 90-96-28Z"/>
+    <path d="M-65 3Q-48-18-31 3M31 3Q48-18 65 3M-14 29L0 37L14 29M0 37V45Q-14 62-28 46M0 45Q14 62 28 46M-86 29L-126 19M-86 47L-130 52M86 29L126 19M86 47L130 52"/>
+  </g>
+  <text x="1010" y="397" fill="#f58aaa" font-family="Georgia,serif" font-style="italic" font-size="23" text-anchor="middle">заходи на чашку ня</text>
+</svg>

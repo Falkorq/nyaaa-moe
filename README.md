@@ -1,23 +1,57 @@
+[![nyaaa.moe — место для кошачьих дел](docs/cover.svg)](https://nyaaa.moe/)
+
+<p align="center">
+  <a href="https://nyaaa.moe/"><strong>Зайти в кафе</strong></a> ·
+  <a href="https://nyaaa.moe/quiz.html">Пройти тест</a> ·
+  <a href="https://nyaaa.moe/api.html">Посмотреть API</a>
+</p>
+
 # nyaaa.moe
 
-Static pages and a Cloudflare Worker for the nya API, Groq translator, guide progress and certificates.
+Ночное меню кафе La Soleil: кошачьи тесты, маленькие инструменты и гайд с сертификатом няши. Заходи, Чокола уже разливает кофе.
 
-Production deploys from the `main` branch of `Falkorq/nyaaa-moe` through Cloudflare Workers Builds. Build command: `npm run build`. Deploy command: `npx wrangler deploy`.
+## Сегодня в меню
 
-The Worker handles `nyaaa.moe/*` and `www.nyaaa.moe/*`. Their DNS records are proxied through Cloudflare and use the originless placeholder `192.0.2.0`. Before migration both records pointed to Netlify at `75.2.60.5` with DNS-only mode.
+| Раздел | Что попробовать |
+| --- | --- |
+| [Кошачьи тесты](https://nyaaa.moe/quiz.html) | Характер, архетипы, головоломка и короткие тесты |
+| [Как стать няшей](https://nyaaa.moe/guide.html) | Десять шагов и персональный сертификат |
+| [Няшки сайта](https://nyaaa.moe/nyashki.html) | Книга обладателей сертификатов |
+| [Кото-погода](https://nyaaa.moe/weather.html) | Прогноз на кошачьем языке |
+| [Ня-переводчик](https://nyaaa.moe/translator.html) | Одна фраза, шесть кошачьих голосов |
+| [Ня-метаданные](https://nyaaa.moe/meta.html) | Что браузер рассказывает о тебе |
+| [Ня-API](https://nyaaa.moe/api.html) | Мяу-числа и цитаты в JSON |
 
-## Local development
+## Под капотом
 
-Run `npm ci`, `npx wrangler d1 migrations apply nyaaa-moe --local`, then `npm run dev:cloudflare`. Local D1 data stays in the ignored `.wrangler/` directory. Run `npm test` for the existing API and browser tests.
+**HTML · CSS · JavaScript · Cloudflare Workers · D1 · Groq**
 
-## Runtime secrets
+Страницы работают на обычном JavaScript. Cloudflare Assets отдаёт статику, Worker обслуживает `/api/*`, D1 хранит прогресс и сертификаты, а Groq помогает переводчику говорить по-кошачьи.
 
-Set `GROQ_API_KEY` in the Worker's **Settings → Variables and Secrets**, using the Secret type. The translator uses this key only on the server. Optional `CERT_ADMIN_TOKEN` permits certificate deletion. Secrets must never be committed to Git. For local testing, place them in an ignored `.dev.vars` file.
+## Открыть кафе локально
 
-The Wrangler config preserves dashboard variables and requires `GROQ_API_KEY` before deployment, so an automatic deployment cannot silently publish without the translator key.
+Нужны Node.js и npm. Из корня репозитория:
 
-## Database
+```sh
+npm ci
+npx wrangler d1 migrations apply nyaaa-moe --local
+npm run dev:cloudflare
+```
 
-The `DB` binding points to the `nyaaa-moe` D1 database. `migrations/0001_entries.sql` creates the storage table; keys retain the original `cert/` and `progress/` prefixes. Apply future migrations with `npx wrangler d1 migrations apply nyaaa-moe --remote` before code that requires them.
+Открой адрес, который напечатает Wrangler. Для переводчика добавь `GROQ_API_KEY` в локальный `.dev.vars` — этот файл исключён из Git.
 
-The Netlify functions are retained for rollback. Public certificates imported from Netlify keep their original IDs and links. Static requests are served by Cloudflare Assets; `/api/*` requests run through the Worker.
+```sh
+npm test       # тесты API и интерфейса через jsdom
+npm run build # подготовка статики в dist/
+```
+
+## Для тех, кто за стойкой
+
+- [Деплой, секреты и база данных](docs/DEPLOYMENT.md)
+- [Сертификаты](CERTIFICATES.md)
+- `worker/` — API и работа с D1; `migrations/` — схема базы.
+- `netlify/` — прежние функции, сохранённые для отката.
+
+---
+
+Сделано [Falkorq](https://github.com/Falkorq). Личная страница — [falkorq.moe](https://falkorq.moe/).
